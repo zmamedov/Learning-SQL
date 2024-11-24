@@ -85,8 +85,10 @@
 [Task №5](https://stepik.org/lesson/1095762/step/5?unit=1106526)
 
 Напишите запрос, извлекающий из предложенной базы данных идентификаторы кандидатов, которые:
+
 * имеют опыт работы не меньше 2 лет
 * во время собеседования суммарно набрали больше 15 баллов.
+
 <details>
   <summary>Решение</summary>
 
@@ -97,6 +99,61 @@
         AND (SELECT SUM(score)
              FROM Rounds
              WHERE interview_id = Candidates.interview_id) > 15;
+  ```
+
+</details>
+
+---
+
+[Task №6](https://stepik.org/lesson/1095762/step/6?unit=1106526)
+
+Напишите запрос, который извлекает из предложенной базы данных всю информацию о заказах покупателей по следующему правилу:
+
+* если у покупателя есть хотя бы один заказ типа 0, в результирующую таблицу должны быть добавлены только заказы типа 0 этого покупателя
+* если у покупателя нет ни одного заказа типа 0, в результирующую таблицу должны быть добавлены все заказы этого покупателя
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT id, customer_id, order_type
+  FROM Orders
+  WHERE order_type = (SELECT MIN(order_type)
+                      FROM Orders AS InnerOrders
+                      WHERE customer_id = Orders.customer_id
+                      GROUP BY customer_id);
+  ```
+
+</details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1095762/step/7?unit=1106526)
+
+Напишите запрос, который определяет результат олимпиады путем извлечения одного из следующих значений:
+
+* `Moscow University`, если победителем является Московский университет
+* `Saint Petersburg University`, если победителем является Санкт-Петербургский университет
+* `No winner`, если олимпиада завершилась ничьей
+
+Поле с результатом олимпиады должно иметь псевдоним `winner`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT CASE WHEN (SELECT COUNT(*)
+                   FROM Moscow
+                   WHERE Score >= 90) > (SELECT COUNT(*) 
+                                         FROM SaintPetersburg 
+                                         WHERE Score >= 90) THEN 'Moscow University'
+              WHEN (SELECT COUNT(*)
+                   FROM Moscow
+                   WHERE Score >= 90) < (SELECT COUNT(*) 
+                                         FROM SaintPetersburg 
+                                         WHERE Score >= 90) THEN 'Saint Petersburg University'
+              ELSE 'No winner'
+         END AS winner;
   ```
 
 </details>
