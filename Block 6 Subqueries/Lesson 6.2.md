@@ -13,7 +13,7 @@
   FROM Films
   WHERE running_time > (SELECT running_time FROM Films AS InnerFilms 
                         WHERE DAYOFYEAR(show_date) = DAYOFYEAR(Films.show_date) - 1)
-  ORDER BY title;;
+  ORDER BY title;
   ```
 
 </details>
