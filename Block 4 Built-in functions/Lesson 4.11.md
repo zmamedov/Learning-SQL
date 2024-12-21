@@ -116,8 +116,7 @@
                WHEN 'Silver' THEN 2
                WHEN 'Bronze' THEN 3
                ELSE 4
-           END, 
-		   name;
+           END, name;
   ```
 
 </details>
@@ -141,9 +140,7 @@
              ELSE 100 - (MINUTE(time) + HOUR(time)*60 - 30)
          END AS score    
   FROM Results
-  ORDER BY score DESC, 
-           name, 
-		   surname;
+  ORDER BY score DESC, name, surname;
   ```
 
 </details>
