@@ -134,7 +134,7 @@
   FROM Meals CROSS JOIN Drinks
   ORDER BY Meals.price + Drinks.price, 
            Meals.name, 
-		   Drinks.name;
+           Drinks.name;
   ```
 
 </details>
