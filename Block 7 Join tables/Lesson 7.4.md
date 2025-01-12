@@ -107,7 +107,7 @@
         FROM Programmers
         ORDER BY sortvalue, 
                  name DESC, 
-        		 surname DESC) AS Scientists;
+                 surname DESC) AS Scientists;
   ```
 
 </details>
