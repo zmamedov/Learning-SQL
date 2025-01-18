@@ -109,3 +109,34 @@
 
 ---
 
+[Task №6](https://stepik.org/lesson/1095763/step/6?unit=1106527)
+
+В зависимости от средней температуры в месяце, метеоресурс характеризует ее определенным типом погоды:
+
+* `Cold`, если средняя температура меньше или равна `15`
+* `Hot`, если средняя температура больше или равна `25`
+* `Warm` в остальных случаях
+
+Напишите запрос, который извлекает из предложенной базы данных названия стран, а также определяет тип погоды в каждой стране в сентябре `2023` года. При этом в результирующую таблицу должны быть добавлены названия только тех стран, информация о температуре в которых известна.
+Поле с названием страны должно иметь псевдоним country, поле с типом погоды в стране — `weather_type`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT Countries.name AS country,
+         CASE 
+             WHEN AVG(weather_state) <= 15 THEN 'Cold'
+             WHEN AVG(weather_state) >= 25 THEN 'Hot'
+             ELSE 'Warm'
+         END AS weather_type
+  FROM Weather
+  LEFT JOIN Countries ON country_id = Countries.id
+  WHERE YEAR(day) = 2023 AND MONTH(day) = 9
+  GROUP BY country_id;
+  ```
+
+</details>
+
+---
+
