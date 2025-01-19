@@ -140,3 +140,140 @@
 
 ---
 
+[Task №7](https://stepik.org/lesson/1095763/step/7?unit=1106527)
+
+Напишите запрос, который составляет все возможные тройки учеников, выбирая из школ `A, B` и `C` по одному ученику, и отображает полученный результат в виде таблицы из трех полей:
+
+* `student_A` — имя ученика из школы `A`
+* `student_B` — имя ученика из школы `B`
+* `student_C` — имя ученика из школы `C`
+
+При этом в каждой тройке имена и идентификаторы выбранных учеников должны быть попарно различны, то есть не должно быть двух учащихся с одинаковыми именами или одинаковыми идентификаторами.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT a.student_name AS student_A, b.student_name AS student_B, c.student_name AS student_C
+  FROM SchoolA a CROSS JOIN SchoolB b CROSS JOIN SchoolC c
+  WHERE a.student_id NOT IN (b.student_id, c.student_id) 
+        AND b.student_id NOT IN (a.student_id, c.student_id)
+        AND c.student_id NOT IN (b.student_id, a.student_id)
+        AND a.student_name NOT IN (b.student_name, c.student_name) 
+        AND b.student_name NOT IN (a.student_name, c.student_name)
+        AND c.student_name NOT IN (b.student_name, a.student_name)
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1095763/step/8?unit=1106527)
+
+Напишите запрос, который извлекает из предложенной базы данных названия всех факультетов, а также определяет, сколько студентов обучается на каждом факультете.
+
+Поле с названием факультета должно иметь псевдоним `department`, поле с количеством обучающихся на факультете студентов — `students_count`.
+
+Записи в результирующей таблице должны быть расположены в порядке убывания значения поля `students_count`, при совпадении — в порядке возрастания значения поля `department`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT d.name AS department,
+         COUNT(Students.id) AS students_count
+  FROM Departments d
+  LEFT JOIN Students ON d.id = dept_id 
+  GROUP BY d.id
+  ORDER BY students_count DESC, 
+           department
+  ```
+
+</details>
+
+---
+
+[Task №9](https://stepik.org/lesson/1095763/step/9?unit=1106527)
+
+Напишите запрос, извлекающий из предложенной базы данных имя и фамилию кандидата, который набрал наибольшее количество голосов, а также определяющий набранное им количество голосов.
+Поле с количеством набранных кандидатом голосов должно иметь псевдоним `votes_count`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT Candidates.name, Candidates.surname,
+         COUNT(Votes.id) AS votes_count
+  FROM Candidates
+  LEFT JOIN Votes ON Candidates.id = candidate_id
+  GROUP BY Candidates.id
+  ORDER BY votes_count DESC
+  LIMIT 1;
+  ```
+
+</details>
+
+---
+
+[Task №10](https://stepik.org/lesson/1095763/step/10?unit=1106527)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификаторы сессий, во время которых не была показана рекламная интеграция.
+Поле с идентификатором сессии должно иметь псевдоним `session_id`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT Playback.id AS session_id
+  FROM Playback
+  LEFT JOIN Ads ON Ads.user_id = Playback.user_id
+        AND time_stamp BETWEEN start_time AND end_time
+  WHERE Ads.id IS NULL
+  ```
+
+</details>
+
+---
+
+[Task №11](https://stepik.org/lesson/1095763/step/11?unit=1106527)
+
+Напишите запрос, который извлекает из предложенной базы данных идентификаторы постов, а также определяет количество комментариев, оставленных под каждым постом.
+Поле с идентификатором поста должно иметь псевдоним `post_id`, поле с количеством оставленных под постом комментариев — `number_of_comments`.
+Записи в результирующей таблице должны быть расположены в порядке убывания значения поля `post_id`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT S1.sub_id AS post_id, 
+         COUNT(S2.parent_id) AS number_of_comments
+  FROM Submissions S1
+  LEFT JOIN Submissions S2 ON S1.sub_id = S2.parent_id 
+  WHERE S1.parent_id IS NULL
+  GROUP BY S1.sub_id
+  ORDER BY post_id DESC;
+  ```
+
+</details>
+
+---
+
+[Task №12](https://stepik.org/lesson/1095763/step/12?unit=1106527)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификаторы покупателей, которые приобрели товар `Canon EOS R6 Camera`, но не приобрели товар `Lenovo ThinkPad X1 Carbon`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT buyer_id
+  FROM Products
+  INNER JOIN Sales ON Products.id = product_id
+  WHERE name = 'Canon EOS R6 Camera' 
+        AND buyer_id NOT IN (SELECT DISTINCT buyer_id 
+                             FROM Products
+                             INNER JOIN Sales ON Products.id = product_id
+                             WHERE name = 'Lenovo ThinkPad X1 Carbon');
+  ```
+
+</details>
