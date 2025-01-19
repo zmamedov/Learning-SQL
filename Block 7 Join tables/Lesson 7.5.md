@@ -161,7 +161,7 @@
         AND c.student_id NOT IN (b.student_id, a.student_id)
         AND a.student_name NOT IN (b.student_name, c.student_name) 
         AND b.student_name NOT IN (a.student_name, c.student_name)
-        AND c.student_name NOT IN (b.student_name, a.student_name)
+        AND c.student_name NOT IN (b.student_name, a.student_name);
   ```
 
 </details>
@@ -186,7 +186,7 @@
   LEFT JOIN Students ON d.id = dept_id 
   GROUP BY d.id
   ORDER BY students_count DESC, 
-           department
+           department;
   ```
 
 </details>
@@ -228,7 +228,7 @@
   FROM Playback
   LEFT JOIN Ads ON Ads.user_id = Playback.user_id
         AND time_stamp BETWEEN start_time AND end_time
-  WHERE Ads.id IS NULL
+  WHERE Ads.id IS NULL;
   ```
 
 </details>
