@@ -31,7 +31,7 @@
   SELECT SUM(BigBoxes.apple_count + IFNULL(SmallBoxes.apple_count, 0)) AS apple_count,
          SUM(BigBoxes.orange_count + IFNULL(SmallBoxes.orange_count, 0)) AS orange_count
   FROM BigBoxes
-  LEFT JOIN SmallBoxes ON small_box_id = SmallBoxes.idж
+  LEFT JOIN SmallBoxes ON small_box_id = SmallBoxes.id;
   ```
 
 </details>
@@ -186,9 +186,9 @@
   ```sql
   SELECT request_at AS day,
          ROUND(SUM(CASE
-                 WHEN status = 'completed' THEN 0
-                 ELSE 1
-             END) / COUNT(*), 2) AS cancellation_rate
+                      WHEN status = 'completed' THEN 0
+                      ELSE 1
+                   END) / COUNT(*), 2) AS cancellation_rate
   FROM Trips
   LEFT JOIN Users U1 ON client_id = U1.id
   LEFT JOIN Users U2 ON driver_id = U2.id
