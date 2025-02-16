@@ -103,3 +103,65 @@
   ```
 
 </details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1054084/step/17?unit=1063286)
+
+Напишите запрос, который определяет поле `student_id` таблицы `Math` как внешний ключ, связанный с полем `id` таблицы `Students`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  ALTER TABLE Math
+  ADD FOREIGN KEY (student_id) REFERENCES Students (id);
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1054084/step/18?unit=1063286)
+
+Напишите запрос, который выполняет с таблицей `Students` следующие преобразования:
+
+* добавляет проверку того, что значением поля name является строка, состоящая из двух и более символов;
+* добавляет проверку того, что значением поля surname является строка, состоящая из двух и более символов;
+* добавляет проверку того, что значением поля age является положительное число.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  ALTER TABLE Students
+  ADD CHECK (CHAR_LENGTH(name) >= 2),
+  ADD CHECK (CHAR_LENGTH(surname) >= 2),
+  ADD CHECK (age > 0);
+  ```
+
+</details>
+
+---
+
+[Task №9](https://stepik.org/lesson/1054084/step/19?unit=1063286)
+
+Напишите запрос, который разбивает поле `fullname` таблицы `Students` на два поля `name` и `surname` типа `VARCHAR(20)`, а затем корректно распределяет данные, содержащиеся в поле `fullname`, по двум новым полям: имя в поле `name`, фамилию в поле `surname`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  ALTER TABLE Students
+  ADD COLUMN name VARCHAR(20),
+  ADD COLUMN surname VARCHAR(20);
+  
+  UPDATE Students
+  SET name = SUBSTRING_INDEX(fullname, ' ', 1),
+      surname = SUBSTRING_INDEX(fullname, ' ', -1);
+  
+  ALTER TABLE Students
+  DROP COLUMN fullname;
+  ```
+
+</details>
