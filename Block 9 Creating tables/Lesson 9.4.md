@@ -89,3 +89,127 @@
   ```
 
 </details>
+
+---
+
+[Task №5](https://stepik.org/lesson/1054680/step/16?unit=1063883)
+
+Напишите запрос, создающий триггер, который после добавления нового отзыва обновляет средний рейтинг соответствующего товара.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  DELIMITER //
+  CREATE TRIGGER rating
+  AFTER INSERT ON Reviews
+  FOR EACH ROW
+  BEGIN
+      UPDATE Products
+      SET avg_rating = (SELECT AVG(rating)
+                       FROM Reviews
+                       WHERE product_id = NEW.product_id)
+      WHERE Products.id = NEW.product_id;
+  END //
+  DELIMITER ;
+  ```
+
+</details>
+
+---
+
+[Task №6](https://stepik.org/lesson/1054680/step/17?unit=1063883)
+
+Напишите запрос, создающий триггер, который перед изменением номера телефона пользователя переводит его в следующий формат:
+
+`+7dddddddddd`
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  DELIMITER //
+  CREATE TRIGGER before_update
+  BEFORE UPDATE ON Users
+  FOR EACH ROW
+  BEGIN
+      SET new.phone_number = CONCAT('+7', RIGHT(REPLACE(new.phone_number, ' ', ''), 10));
+  END //
+  DELIMITER ;
+  
+  DELIMITER //
+  CREATE TRIGGER after_insert
+  BEFORE INSERT ON Users
+  FOR EACH ROW
+  BEGIN
+      SET NEW.phone_number = CONCAT('+7', RIGHT(REPLACE(NEW.phone_number, ' ', ''), 10));
+  END //
+  DELIMITER ;
+  ```
+
+</details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1054680/step/18?unit=1063883)
+
+Напишите запрос, создающий триггер, который после покупки пользователем очередного фильма прибавляет к его сумме, потраченной на покупку фильмов, стоимость только что купленного фильма.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  DELIMITER //
+  CREATE TRIGGER add_price_to_total 
+  AFTER INSERT ON Purchases
+  FOR EACH ROW
+  BEGIN
+      UPDATE Users
+      SET total_spending = total_spending + (SELECT price FROM Films WHERE id = NEW.film_id)
+      WHERE Users.id = NEW.user_id;
+  END //
+  DELIMITER ;
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1054680/step/19?unit=1063883)
+
+Напишите запрос, создающий триггер, который после добавления нового заказа также добавляет сообщение для покупателя.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  DELIMITER //
+  CREATE TRIGGER add_new_notification_to_customer
+  AFTER INSERT ON Orders
+  FOR EACH ROW
+  BEGIN
+      INSERT INTO Notifications (order_id, message)
+      VALUES (NEW.id, CONCAT((SELECT name 
+                             FROM Customers
+                             WHERE id = NEW.customer_id), 
+                             ', new status of your delivery on ',
+                             CURDATE(),
+                             ': ',
+                             NEW.status)
+             );
+  END //
+  DELIMITER ;
+  
+  DELIMITER //
+  CREATE TRIGGER update_notification_to_customer
+  AFTER UPDATE ON Orders
+  FOR EACH ROW
+  BEGIN
+      UPDATE Notifications
+      SET message = CONCAT(SUBSTRING_INDEX(message, ' ', 7), ' ', CURDATE(), ': ', NEW.status)
+      WHERE order_id = NEW.id;
+  END //
+  DELIMITER ;
+  ```
+
+</details>
