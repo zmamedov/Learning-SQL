@@ -120,48 +120,91 @@
 
 ---
 
-[Task №]()
+[Task №5](https://stepik.org/lesson/1162023/step/16?unit=1174328)
 
+Реализуйте функцию `LAST_SECOND_DIGIT()`, которая принимает один аргумент:
 
+* `number` — положительное целое число.
+
+Функция должна возвращать вторую по счету цифру числа `number` с конца. При попытке получить вторую по счету с конца цифру однозначного числа функция `LAST_SECOND_DIGIT()` должна вернуть значение `NULL`.
 
 <details>
   <summary>Решение</summary>
 
   ```sql
-
+  DELIMITER //
+  CREATE FUNCTION LAST_SECOND_DIGIT(number INT)
+  RETURNS INT
+  DETERMINISTIC
+  BEGIN
+      DECLARE digit INT;
+      SET digit := LEFT(RIGHT(number, 2), 1);
+      RETURN IF(CHAR_LENGTH(number) = 1, NULL, digit);
+  END //
+  DELIMITER ;
   ```
 
 </details>
 
 ---
 
-[Task №]()
+[Task №6](https://stepik.org/lesson/1162023/step/17?unit=1174328)
 
+Реализуйте функцию `SOLVE()`, которая принимает три аргумента в следующем порядке:
 
+* `a` — целое число, коэффициент `a` квадратного трехчлена;
+* `b` — целое число, коэффициент `b` квадратного трехчлена;
+* `c` — целое число, коэффициент `c` квадратного трехчлена.
+
+Функция должна возвращать корень многочлена с коэффициентами `a, b` и `c`. Если многочлен с переданными коэффициентами имеет два корня, функция `SOLVE()` должна вернуть меньший из них, если не имеет корней — значение `NULL`.
 
 <details>
   <summary>Решение</summary>
 
   ```sql
-
+  DELIMITER //
+  CREATE FUNCTION SOLVE(a INT, b INT, c INT)
+  RETURNS FLOAT
+  DETERMINISTIC
+  BEGIN
+      DECLARE dis INT;
+      SET dis = b*b - 4*a*c;
+      RETURN CASE
+                 WHEN SQRT(dis) < 0 THEN NULL
+                 WHEN SQRT(dis) = 0 THEN -b / (2*a)
+                 ELSE LEAST((-b+SQRT(dis))/(2*a), (-b-SQRT(dis))/(2*a))
+             END;
+  END //
+  DELIMITER ;
   ```
 
 </details>
 
 ---
 
-[Task №]()
+[Task №7](https://stepik.org/lesson/1162023/step/18?unit=1174328)
 
+Реализуйте функцию `TOTAL()`, которая принимает один аргумент:
 
+* `store_name` — строка, название магазина.
+
+Функция должна возвращать общую сумму, которую заработал магазин с названием `store_name`.
 
 <details>
   <summary>Решение</summary>
 
   ```sql
-
+  DELIMITER //
+  CREATE FUNCTION TOTAL(store_name TEXT)
+  RETURNS INT
+  NOT DETERMINISTIC
+  READS SQL DATA
+  BEGIN
+      RETURN (SELECT SUM(amount)
+              FROM Orders
+              WHERE store = store_name);
+  END //
+  DELIMITER ;
   ```
 
 </details>
-
----
-
