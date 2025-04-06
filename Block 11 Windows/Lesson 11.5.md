@@ -122,3 +122,127 @@
 
 ---
 
+[Task №6](https://stepik.org/lesson/1264340/step/20?unit=1278470)
+
+Напишите запрос, который извлекает из предложенной базы данных всю информацию о продажах за каждый месяц, а также указывает для каждого месяца количество проданных товаров за предыдущий и предпредыдущий месяцы.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT month, quantity, 
+         LAG(quantity, 1, 0) OVER month_sales AS prev_month_sales,
+         LAG(quantity, 2, 0) OVER month_sales AS second_prev_month_sales
+  FROM Sales
+  WINDOW month_sales AS (ORDER BY month);
+  ```
+
+</details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1264340/step/21?unit=1278470)
+
+Напишите запрос, который извлекает из предложенной базы данных всю информацию о продажах за каждый месяц, а также указывает для каждого месяца количество проданных товаров в соответствующем месяце предыдущего квартала: для первого месяца квартала соответствующим месяцем является первый месяц предыдущего квартала, для второго — второй, для третьего — третий.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH MonthQuarter AS (
+      SELECT month, quantity,
+             NTILE(4) OVER (ORDER BY month) AS quarter
+      FROM Sales
+  ),
+  RowQuarter AS (
+      SELECT month, quantity,
+             ROW_NUMBER() OVER (PARTITION BY quarter ORDER BY month) AS month_quarter
+      FROM MonthQuarter
+  )
+  
+  SELECT month, quantity,
+         LAG(quantity, 1, 0) OVER quarter_sales AS prev_quarter_month_sales
+  FROM RowQuarter
+  WINDOW quarter_sales AS (PARTITION BY month_quarter ORDER BY month);
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1264340/step/22?unit=1278470)
+
+Напишите запрос, который извлекает из предложенной базы данных всю информацию о продажах за те месяцы, в которые товаров было продано больше чем в предыдущем месяце.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH PrevMonth AS (
+      SELECT Sales.*,
+             LAG(quantity, 1, 0) OVER (ORDER BY month) AS prev_month_quantity
+      FROM Sales
+  )
+  
+  SELECT month, quantity
+  FROM PrevMonth
+  WHERE quantity > prev_month_quantity;
+  ```
+
+</details>
+
+---
+
+[Task №9](https://stepik.org/lesson/1264340/step/23?unit=1278470)
+
+Напишите запрос, который извлекает из предложенной базы данных всю информацию о продажах за все месяцы, кроме последнего, а также указывает для каждого месяца разницу в количестве проданных товаров между текущим месяцем и следующим.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH NextMonth AS (
+      SELECT Sales.*,
+             LEAD(quantity, 1, 0) OVER (ORDER BY month) AS next_month_sales
+      FROM Sales
+  )
+  
+  SELECT month, quantity,
+         ABS(quantity - next_month_sales) AS next_month_sales_diff
+  FROM NextMonth
+  WHERE month != 12;
+  ```
+
+</details>
+
+---
+
+[Task №10](https://stepik.org/lesson/1264340/step/24?unit=1278470)
+
+Напишите запрос, который разбивает все месяцы по кварталам, определяет среднее изменение количества проданных товаров в каждом квартале и отображает полученный результат в виде таблицы из двух полей:
+
+* `quarter` — номер квартала;
+* `sales_avg_diff` — среднее изменение количества проданных товаров.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH MonthQuarter AS (
+      SELECT Sales.*,
+             NTILE(4) OVER (ORDER BY month) AS quarter
+      FROM Sales
+  ),
+  NextMonthSales AS (
+      SELECT MonthQuarter.*,
+             COALESCE(ABS(quantity - LEAD(quantity, 1) OVER next_month_quarter), 0) AS next_month_diff
+      FROM MonthQuarter
+      WINDOW next_month_quarter AS (PARTITION BY quarter ORDER BY month)
+  )
+  
+  SELECT quarter, SUM(next_month_diff) / 2 AS sales_avg_diff
+  FROM NextMonthSales
+  GROUP BY quarter;
+  ```
+
+</details>
