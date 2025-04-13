@@ -156,3 +156,114 @@
 
 ---
 
+[Task №7](https://stepik.org/lesson/1264341/step/7?unit=1278471)
+
+Напишите запрос, который извлекает из предложенной базы данных имена исполнителей, чьи песни чаще всего занимают первое или второе место в ежедневных чартах.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH CountTopSongs AS (
+      SELECT DISTINCT artist,
+             COUNT(*) OVER artist_window AS top_songs
+      FROM SongCharts
+      INNER JOIN Songs ON song_id = Songs.id
+      WHERE place IN (1, 2)
+      WINDOW artist_window AS (PARTITION BY artist)
+  )
+  
+  SELECT artist
+  FROM CountTopSongs
+  WHERE top_songs = (SELECT MAX(top_songs)
+                     FROM CountTopSongs);
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1264341/step/8?unit=1278471)
+
+Напишите запрос, определяющий в каждой категории два товара, продажи которых принесли наибольшую суммарную прибыль, и отображающий полученный результат в виде таблицы из трех полей:
+
+* `category` — категория товара;
+* `product` — название товара;
+* `total_amount` — суммарная прибыль, которую принесли продажи товара.
+
+Если в категории находится более двух товаров, принесших наибольшую суммарную прибыль, в результирующую таблицу должны быть добавлены те, чье название меньше в лексикографическом сравнении.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH ProductTotalAmount AS (
+      SELECT Orders.*,
+             SUM(amount) OVER (PARTITION BY product) AS total_amount
+      FROM Orders
+  ),
+  TopOrders AS (
+      SELECT product, category, total_amount,
+             ROW_NUMBER() OVER wdw AS number_product_sales
+      FROM ProductTotalAmount
+      GROUP BY product, category, total_amount
+      WINDOW wdw AS (PARTITION BY category ORDER BY total_amount DESC, product)
+  )
+  
+  SELECT category, product, total_amount
+  FROM TopOrders
+  WHERE number_product_sales IN (1, 2);
+  ```
+
+</details>
+
+---
+
+[Task №9](https://stepik.org/lesson/1264341/step/9?unit=1278471)
+
+Напишите запрос, определяющий количество дней, которое проработал каждый сервер, и отображающий полученный результат в виде таблицы из двух полей:
+
+* `server_id` — идентификатор сервера;
+* `total_uptime_days` — количество проработанных дней.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH PrecedingStatusTime AS (
+      SELECT *,
+             LAG(status_time, 1) OVER (PARTITION BY server_id ORDER BY status_time) AS prev_datetime
+      FROM ServerUtilization
+  )
+  
+  SELECT server_id,
+         TRUNCATE(SUM(TIMESTAMPDIFF(SECOND, prev_datetime, status_time)) / 3600 / 24, 0) AS total_uptime_days
+  FROM PrecedingStatusTime
+  WHERE session_status = 'stop'
+  GROUP BY server_id;
+  ```
+
+</details>
+
+---
+
+[Task №10](https://stepik.org/lesson/1264341/step/10?unit=1278471)
+
+Напишите запрос, который группирует одинаковые товары в зависимости от месяца, в который они были проданы, вычисляет в рамках каждой группы суммарную прибыль, которую принесли продажи товара, и отображает полученный результат в виде таблицы из четырех полей:
+
+* `month` — полное название месяца на английском;
+* `product` — название товара;
+* `total_amount` — суммарная прибыль, которую принесли продажи товара в этом месяце;
+* `nearest_prev_month_total_amount` — суммарная прибыль, которую принесли продажи товара в ближайшем предыдущем месяце (например, в предпредыдущем, если в предыдущем месяце товар не был продан ни разу). Если товар не был продан ни разу ни в одном из предыдущих месяцев, поле должно содержать значение `NULL`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT MONTHNAME(purchased_on) AS month,product, SUM(amount) AS total_amount,
+         LAG(SUM(amount)) OVER (PARTITION BY product ORDER BY product) AS nearest_prev_month_total_amount
+  FROM Orders
+  GROUP BY product, MONTHNAME(purchased_on)
+  ```
+
+</details>
