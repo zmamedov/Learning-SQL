@@ -138,3 +138,51 @@
 
 ---
 
+[Task №9](https://stepik.org/lesson/1481756/step/9?unit=1501469)
+
+Напишите запрос, который определяет популярность онлайн-школы Beegeek путем суммирования баллов всех постов.
+
+Поле с оценкой популярности должно иметь псевдоним `popularity`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT SUM(CASE
+                 WHEN REGEXP_LIKE(content, '^beegeek.*beegeek$', 'c') = 1 THEN 3
+                 WHEN REGEXP_LIKE(content, '^beegeek|beegeek$', 'c') = 1 THEN 2
+                 WHEN REGEXP_LIKE(content, '[ _]?beegeek[ _]?', 'c') = 1 THEN 1
+                 ELSE 0
+              END) AS popularity 
+  FROM Posts;
+  ```
+
+</details>
+
+---
+
+[Task №10](https://stepik.org/lesson/1481756/step/10?unit=1501469)
+
+Напишите запрос, который разбивает режиссеров на группы в зависимости от доменной части адреса их электронной почты, определяет количество режиссеров в каждой группе, и отображает полученный результат в виде таблицы из двух полей:
+
+* `domain` — доменная часть адреса электронной почты;
+* `count` — количество режиссеров.
+
+При этом в результирующей таблице доменная часть электронной почты должна быть указана в следующем формате:
+
+`@<доменное имя>`
+
+Записи в результирующей таблице должны быть расположены в порядке возрастания значения поля `count`, при совпадении — в порядке возрастания значения поля `domain`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT REGEXP_SUBSTR(email, '@\\w+') AS domain,
+         COUNT(*) AS count
+  FROM Directors
+  GROUP BY domain
+  ORDER BY count, domain;
+  ```
+
+</details>
