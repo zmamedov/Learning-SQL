@@ -66,3 +66,75 @@
 
 ---
 
+[Task №5](https://stepik.org/lesson/1481756/step/5?unit=1501469)
+
+Напишите запрос, который извлекает из предложенной базы данных все номера телефонов. При этом в результирующей таблице номера телефонов должны содержать только цифры.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT REGEXP_REPLACE(phone_number, '[ -]', '') AS phone_number
+  FROM Phones;
+  ```
+
+</details>
+
+---
+
+[Task №6](https://stepik.org/lesson/1481756/step/6?unit=1501469)
+
+Напишите запрос, который извлекает из предложенной базы данных все номера телефонов, разбивает их на код страны, код города и номер, и отображает полученный результат в виде таблицы из трех полей:
+
+* `country_code` — код страны;
+* `area_code` — код города;
+* `number` — номер.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT REGEXP_SUBSTR(phone, '^\\d+') AS country_code,
+         REGEXP_SUBSTR(REGEXP_SUBSTR(phone, '\\d+[-]', 1, 2), '\\d+') AS area_code,
+         REGEXP_SUBSTR(phone, '\\d+$') AS number
+  FROM Phones;
+  ```
+
+</details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1481756/step/7?unit=1501469)
+
+Напишите запрос, извлекающий из предложенной базы данных имена и фамилии студентов, которые имеют корректный логин.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name, surname
+  FROM Students
+  WHERE REGEXP_LIKE(login, '^[_]?[a-zA-Z]+\\d*[_]?$') = 1;
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1481756/step/8?unit=1501469)
+
+Напишите запрос, который извлекает из предложенной базы данных все сообщения, которые достойны внимания.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT message
+  FROM Messages
+  WHERE REGEXP_LIKE(message, '^(Здравствуйте|(Доброе утро)|(Добрый день)|(Добрый вечер))') = 1;
+  ```
+
+</details>
+
+---
+
