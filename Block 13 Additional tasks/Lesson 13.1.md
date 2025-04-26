@@ -67,3 +67,71 @@
 
 ---
 
+[Task №5](https://stepik.org/lesson/1072296/step/5?unit=1082120)
+
+Напишите запрос, извлекающий из предложенной базы данных информацию о странах (название, континент), площадь которых больше `2000000` квадратных километров или население которых больше `15000000` человек.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name, continent
+  FROM Countries
+  WHERE area > 2000000 OR population > 15000000;
+  ```
+
+</details>
+
+---
+
+[Task №6](https://stepik.org/lesson/1072296/step/6?unit=1082120)
+
+Напишите запрос, извлекающий из предложенной базы данных уникальные идентификаторы пользователей, которые просмотрели хотя бы одну из своих статей.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT DISTINCT author_id
+  FROM Views
+  WHERE author_id = viewer_id;
+  ```
+
+</details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1072296/step/7?unit=1082120)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификаторы твитов, содержание которых состоит из `20` и менее символов.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT id
+  FROM Tweets
+  WHERE CHAR_LENGTH(content) <= 20;
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1072296/step/8?unit=1082120)
+
+Напишите запрос, который извлекает из предложенной базы данных идентификаторы и названия всех товаров, при этом меняет местами идентификаторы двух последовательных товаров.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT IF(id MOD 2 = 0, id - 1, id + 1) AS id, name
+  FROM Products
+  ORDER BY id;
+  ```
+
+</details>
+
+---
+
