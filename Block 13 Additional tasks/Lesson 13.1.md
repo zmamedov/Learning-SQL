@@ -217,7 +217,7 @@
   SELECT name, surname
   FROM Customers
   LEFT JOIN Orders ON Customers.id = customer_id
-  WHERE customer_id is NULL
+  WHERE customer_id is NULL;
   ```
 
 </details>
