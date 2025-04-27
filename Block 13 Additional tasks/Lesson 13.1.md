@@ -206,3 +206,45 @@
 
 ---
 
+[Task №13](https://stepik.org/lesson/1072296/step/13?unit=1082120)
+
+Напишите запрос, извлекающий из предложенной базы данных имена и фамилии пользователей, которые не совершили ни одного заказа.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name, surname
+  FROM Customers
+  LEFT JOIN Orders ON Customers.id = customer_id
+  WHERE customer_id is NULL
+  ```
+
+</details>
+
+---
+
+[Task №14](https://stepik.org/lesson/1072296/step/14?unit=1082120)
+
+Напишите запрос, определяющий цену каждого товара в каждом магазине, в котором он продается. Запись с информацией о цене товара должна включать название товара, название магазина и цену товара в этом магазине.
+
+Поле с названием товара должно иметь псевдоним `product`, поле с названием магазина — `store`, поле с информацией о цене товара — `price`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT product, 'aliexpress' AS store, aliexpress AS price
+  FROM Prices
+  WHERE aliexpress IS NOT NULL
+  UNION ALL
+  SELECT product, 'amazon' AS store, amazon AS price
+  FROM Prices
+  WHERE amazon IS NOT NULL
+  UNION ALL
+  SELECT product, 'ebay' AS store, ebay AS price
+  FROM Prices
+  WHERE ebay IS NOT NULL;
+  ```
+
+</details>
