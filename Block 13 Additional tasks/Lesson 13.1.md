@@ -135,3 +135,74 @@
 
 ---
 
+[Task №9](https://stepik.org/lesson/1072296/step/9?unit=1082120)
+
+Напишите запрос, который извлекает из предложенной базы данных имена и фамилии всех сотрудников компании, а также определяет премию каждого сотрудника.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name, surname,
+         IF(id % 2 = 0 AND LEFT(name, 1) = 'A', salary, salary / 2) AS bonus
+  FROM Employees
+  ```
+
+</details>
+
+---
+
+[Task №10](https://stepik.org/lesson/1072296/step/10?unit=1082120)
+
+Напишите запрос, извлекающий из предложенной базы данных названия фильмов, которые имеют нечетный идентификатор и краткое описание которых отлично от `boring`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT title
+  FROM Films
+  WHERE id % 2 != 0 AND description != 'boring'
+  ORDER BY id DESC;
+  ```
+
+</details>
+
+---
+
+[Task №11](https://stepik.org/lesson/1072296/step/11?unit=1082120)
+
+Напишите запрос, извлекающий из предложенной базы данных всю информацию о каждом студенте. При этом имена и фамилии студентов в результирующей таблице должны быть отформатированы так, чтобы первая буква была заглавная, а остальные — строчные.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT id, 
+         CONCAT(UPPER(LEFT(name, 1)), LOWER(RIGHT(name, CHAR_LENGTH(name) - 1))) AS name,
+         CONCAT(UPPER(LEFT(surname, 1)), LOWER(RIGHT(surname, CHAR_LENGTH(surname) - 1))) AS surname
+  FROM Students
+  ORDER BY id;
+  ```
+
+</details>
+
+---
+
+[Task №12](https://stepik.org/lesson/1072296/step/12?unit=1082120)
+
+Напишите запрос, который извлекает из предложенной базы данных стороны всех потенциальных треугольников и для каждой тройки сторон указывает, существует ли треугольник с такими сторонами: `yes`, если существует, или `no` в противном случае.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT x, y, z,
+         IF(x+y>z AND x+z>y AND y+z>x, 'yes', 'no') AS triangle
+  FROM Triangles;
+  ```
+
+</details>
+
+---
+
