@@ -194,3 +194,77 @@
 
 ---
 
+[Task №11](https://stepik.org/lesson/1072301/step/11?unit=1082125)
+
+Напишите запрос, который извлекает из предложенной базы данных идентификаторы всех машин, а также определяет среднее время, затрачиваемое каждой машиной на выполнение процесса.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT A1.machine_id, ROUND((SUM(A2.timestamp) - SUM(A1.timestamp)) / COUNT(*), 3) AS processing_time
+  FROM Activity A1
+  INNER JOIN Activity A2 ON A1.machine_id = A2.machine_id 
+                            AND A1.activity_type = 'start' AND A2.activity_type = 'end'
+                            AND A1.process_id = A2.process_id
+  GROUP BY A1.machine_id;
+  ```
+
+</details>
+
+---
+
+[Task №12](https://stepik.org/lesson/1072301/step/12?unit=1082125)
+
+Напишите запрос, который извлекает из предложенной базы данных всю информацию обо всех логических выражениях, а также определяет значение каждого выражения: `true`, если оно истинно, или `false` в противном случае.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT left_operand, operator, right_operand,
+         IF(CASE
+               WHEN operator = '<' THEN V1.value < V2.value
+               WHEN operator = '>' THEN V1.value > V2.value
+               WHEN operator = '=' THEN V1.value = V2.value
+            END, 'true', 'false') AS value
+  FROM Expressions
+  LEFT JOIN Variables V1 ON left_operand = V1.name
+  LEFT JOIN Variables V2 ON right_operand = V2.name;
+  ```
+
+</details>
+
+---
+
+[Task №13](https://stepik.org/lesson/1072301/step/13?unit=1082125)
+
+Напишите запрос, который извлекает из предложенной базы данных названия футбольных команд, а также определяет количество очков, набранное каждой командой в результате всех сыгранных матчей. При этом в результирующую таблицу должна быть добавлена информация только о тех футбольных командах, которые сыграли хотя бы один матч.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT host_name AS name, 
+         SUM(CASE 
+                WHEN host_goals > guest_goals THEN 3
+                WHEN host_goals = guest_goals THEN 1
+                ELSE 0
+             END) AS num_points
+  FROM
+  (SELECT host_team, guest_team, host_goals, guest_goals, T1.name host_name, T2.name guest_name
+  FROM Matches 
+  INNER JOIN Teams T1 ON host_team = T1.id
+  INNER JOIN Teams T2 ON guest_team = T2.id
+  
+  UNION ALL
+  
+  SELECT guest_team, host_team, guest_goals, host_goals, T2.name, T1.name
+   FROM Matches 
+   INNER JOIN Teams T1 ON host_team = T1.id
+   INNER JOIN Teams T2 ON guest_team = T2.id) AS TeamMatches
+  GROUP BY host_name
+  ORDER BY num_points DESC, name;
+  ```
+
+</details>
