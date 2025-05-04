@@ -129,3 +129,68 @@
 
 ---
 
+[Task №8](https://stepik.org/lesson/1072301/step/8?unit=1082125)
+
+Напишите запрос, который извлекает из предложенной базы данных псевдонимы всех пользователей, а также определяет суммарное расстояние, пройденное каждым пользователем.
+
+Поле с суммарным расстоянием, пройденным пользователем, должно иметь псевдоним `travelled_distance`.
+
+Данные в результирующей таблице должны быть расположены в порядке убывания значения поля `travelled_distance`, при совпадении — порядке возрастания значения поля `username`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT username, IFNULL(SUM(distance), 0) AS travelled_distance
+  FROM Users
+  LEFT JOIN Rides ON Users.id = user_id
+  GROUP BY username
+  ORDER BY travelled_distance DESC, username;
+  ```
+
+</details>
+
+---
+
+[Task №9](https://stepik.org/lesson/1072301/step/9?unit=1082125)
+
+Напишите запрос, извлекающий из предложенной базы данных имена покупателей, которые не приобрели ни одного товара у продавца с именем `Bonnie`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name
+  FROM Customers
+  WHERE id NOT IN (SELECT Customers.id
+                   FROM Orders
+                   RIGHT JOIN Sellers ON seller_id = Sellers.id
+                   RIGHT JOIN Customers ON customer_id = Customers.id
+                   WHERE Sellers.name = 'Bonnie');
+  ```
+
+</details>
+
+---
+
+[Task №10](https://stepik.org/lesson/1072301/step/10?unit=1082125)
+
+Напишите запрос, который извлекает из предложенной базы данных идентификаторы всех покупателей, а также определяет рейтинг подтверждения каждого покупателя.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT Customers.id, IFNULL(ROUND(SUM(CASE
+                                           WHEN status = 'confirmed' THEN 1
+                                           ELSE 0
+                                        END) / COUNT(status), 2), 0) AS confirmation_rate
+  FROM Customers
+  LEFT JOIN Confirmations ON Customers.id = customer_id
+  GROUP BY Customers.id;
+  ```
+
+</details>
+
+---
+
