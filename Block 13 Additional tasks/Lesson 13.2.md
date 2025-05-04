@@ -54,3 +54,78 @@
 
 ---
 
+[Task №4](https://stepik.org/lesson/1072301/step/4?unit=1082125)
+
+Напишите запрос, извлекающий из предложенной базы данных информацию о сотрудниках организации (имя, фамилия, зарплата), зарплата которых меньше `2000` долларов. Если зарплата сотрудника неизвестна, она считается равной `NULL` и меньше `2000`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name, surname, salary
+  FROM Employees
+  LEFT JOIN Salary ON Employees.id = employee_id
+  WHERE salary < 2000 OR salary IS NULL;
+  ```
+
+</details>
+
+---
+
+[Task №5](https://stepik.org/lesson/1072301/step/5?unit=1082125)
+
+Напишите запрос, который извлекает из предложенной базы данных названия фильмов для детей, транслируемых в августе `2023` года.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT title
+  FROM Content
+  INNER JOIN TVProgram ON Content.id = content_id
+  WHERE kids_content = 'yes' 
+        AND YEAR(program_date) = 2023 
+        AND MONTH(program_date) = 8
+        AND content_type = 'movie';
+  ```
+
+</details>
+
+---
+
+[Task №6](https://stepik.org/lesson/1072301/step/6?unit=1082125)
+
+Напишите запрос, который извлекает из предложенной базы данных следующую информацию обо всех сотрудниках компании: имя, фамилия, город проживания, штат проживания.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name, surname, city, state
+  FROM Persons
+  LEFT JOIN Addresses ON Persons.id = person_id;
+  ```
+
+</details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1072301/step/7?unit=1082125)
+
+Напишите запрос, извлекающий из предложенной базы данных имена продавцов, которые в `2023` году не продали ни одного товара.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name
+  FROM Sellers
+  LEFT JOIN Orders ON Sellers.id = seller_id AND YEAR(sale_date) = 2023
+  WHERE seller_id IS NULL
+  ORDER BY name;
+  ```
+
+</details>
+
+---
+
