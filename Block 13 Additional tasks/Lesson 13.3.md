@@ -123,3 +123,69 @@
 
 ---
 
+[Task №7](https://stepik.org/lesson/1072300/step/7?unit=1082124)
+
+Напишите запрос, который извлекает из предложенной базы данных идентификаторы всех игроков, а также для каждого пользователя определяет идентификатор устройства, с которого был выполнен первый вход.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT player_id, device_id AS first_device_id
+  FROM Activity
+  WHERE event_date = (SELECT MIN(event_date)
+                      FROM Activity InnerAc
+                      WHERE player_id = Activity.player_id);
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1072300/step/8?unit=1082124)
+
+Напишите запрос, извлекающий из предложенной базы данных названия товаров, которые были куплены хотя бы раз, и указывающий для каждого товара дату, когда этот товар был куплен в последний раз.
+
+Поле с названием товара должно иметь псевдоним `product_name`, поле с датой последней покупки — `last_purchase_date`.
+
+Записи в результирующей таблице должны быть расположены в порядке возрастания значения поля `product_name`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT (SELECT name
+          FROM Products
+          WHERE Products.id = product_id) AS product_name, 
+          order_date AS last_purchase_date
+  FROM Orders 
+  WHERE order_date = (SELECT MAX(order_date)
+                      FROM Orders InnerOrd
+                      WHERE product_id = Orders.product_id)
+  ORDER BY product_name;
+  ```
+
+</details>
+
+---
+
+[Task №9](https://stepik.org/lesson/1072300/step/9?unit=1082124)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификаторы переводов, которые имеют наибольшую сумму среди всех остальных переводов, выполненных в тот же день. Если в рамках одного дня несколько переводов имеют наибольшую сумму, в результирующую таблицу должен добавлен идентификатор каждого такого перевода.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT id
+  FROM Transactions
+  WHERE amount = (SELECT MAX(amount)
+                  FROM Transactions Tr
+                  WHERE DATE(Transactions.day) = DATE(day))
+  ORDER BY id DESC;
+  ```
+
+</details>
+
+---
+
