@@ -260,3 +260,74 @@
 
 ---
 
+[Task №13](https://stepik.org/lesson/1072300/step/13?unit=1082124)
+
+Напишите запрос, извлекающий из предложенной базы данных информацию о трех последних заказах каждого покупателя. Запись с информацией о заказе должна включать имя покупателя, идентификатор заказа и дату заказа. Если у покупателя менее трех заказов, в результирующую таблицу должна быть добавлена информация о каждом заказе покупателя.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH CTE AS (
+      SELECT name, Orders.id AS order_id, order_date,
+             ROW_NUMBER() OVER lim_customer AS row_num
+      FROM Orders
+      INNER JOIN Customers ON Customers.id = customer_id
+      WINDOW lim_customer AS (PARTITION BY name ORDER BY Orders.id DESC)
+  )
+  
+  SELECT name, order_id, order_date
+  FROM CTE
+  WHERE row_num IN (1, 2, 3);
+  ```
+
+</details>
+
+---
+
+[Task №14](https://stepik.org/lesson/1072300/step/14?unit=1082124)
+
+Напишите запрос, извлекающий из предложенной базы данных информацию о сотрудниках (название отдела, имя, фамилия, заработная плата), которые имеют самую высокую зарплату внутри своего отдела. Если внутри отдела несколько сотрудников имеют самую высокую зарплату, в результирующую таблицу должна быть добавлена информация о каждом таком сотруднике.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT Departments.name AS department, Employees.name AS name, surname, salary
+  FROM Employees
+  INNER JOIN Departments ON Departments.id = department_id
+  WHERE salary = (SELECT salary
+                  FROM Employees InnerEmp
+                  WHERE department_id = Employees.department_id
+                  ORDER BY salary DESC
+                  LIMIT 1);
+  ```
+
+</details>
+
+---
+
+[Task №15](https://stepik.org/lesson/1072300/step/15?unit=1082124)
+
+Напишите запрос, извлекающий из предложенной базы данных информацию о сотрудниках (название отдела, имя, фамилия, зарплата), которые являются высокооплачиваемыми.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT Departments.name AS department, Employees.name AS name, surname, salary
+  FROM Employees
+  INNER JOIN Departments ON Departments.id = department_id
+  WHERE salary IN (SELECT salary
+                   FROM (SELECT DISTINCT salary
+                         FROM Employees InnerEmp
+                         WHERE department_id = Employees.department_id
+                         ORDER BY salary DESC
+                         LIMIT 3) t
+                  );
+  ```
+
+</details>
+
+---
+
