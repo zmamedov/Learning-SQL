@@ -189,3 +189,74 @@
 
 ---
 
+[Task №10](https://stepik.org/lesson/1072300/step/10?unit=1082124)
+
+Напишите запрос, который разбивает товары магазина на категории, согласно их продажам, и определяет количество товаров в каждой категории.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT DISTINCT 'Low Sales' AS category,
+         (SELECT COUNT(*) FROM Sales WHERE income < 20000) AS products_count
+  FROM Sales
+  UNION ALL
+  SELECT DISTINCT 'Average Sales' AS category,
+         (SELECT COUNT(*) FROM Sales WHERE income BETWEEN 20000 AND 50000) AS products_count
+  FROM Sales
+  UNION ALL
+  SELECT DISTINCT 'High Sales' AS category,
+         (SELECT COUNT(*) FROM Sales WHERE income > 50000) AS products_count
+  FROM Sales;
+  ```
+
+</details>
+
+---
+
+[Task №11](https://stepik.org/lesson/1072300/step/11?unit=1082124)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификатор пользователя, который имеет наибольшее количество друзей. Помимо идентификатора пользователя, должно быть извлечено и само количество этих друзей.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT id, SUM(friends) AS friends
+  FROM (SELECT requester_id AS id, COUNT(*) AS friends
+        FROM RequestsAccepted 
+        GROUP BY requester_id
+        UNION ALL 
+        SELECT accepter_id, COUNT(*)
+        FROM RequestsAccepted 
+        GROUP BY accepter_id) t
+  GROUP BY id
+  ORDER BY friends DESC
+  LIMIT 1;
+  ```
+
+</details>
+
+---
+
+[Task №12](https://stepik.org/lesson/1072300/step/12?unit=1082124)
+
+Напишите запрос, извлекающий из предложенной базы данных имя последнего пассажира, который сможет сесть в автобус и не превысить ограничение по весу.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT person_name
+  FROM Queue
+  WHERE (SELECT SUM(weight)
+          FROM Queue Q
+          WHERE turn <= Queue.turn) <= 1000
+  ORDER BY turn DESC
+  LIMIT 1;
+  ```
+
+</details>
+
+---
+
