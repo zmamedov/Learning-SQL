@@ -331,3 +331,30 @@
 
 ---
 
+[Task №16](https://stepik.org/lesson/1072300/step/16?unit=1082124)
+
+Напишите запрос, который определяет следующую информацию для каждого возможного семидневного периода:
+
+* `amount` — общая сумма, потраченная посетителями;
+* `average_amount` — средний дневной заработок ресторана.
+
+Поле с датой, обозначающей период, должно иметь псевдоним `period`. Значения в поле `average_amount` должны быть округлены до `2` знаков после запятой.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT DISTINCT visited_on AS period, 
+         (SELECT SUM(amount)
+          FROM Visits temp1
+          WHERE temp1.visited_on BETWEEN SUBDATE(Visits.visited_on, INTERVAL 6 DAY) AND Visits.visited_on) AS amount,
+         (SELECT ROUND(SUM(amount) / 7, 2)
+          FROM Visits temp2
+          WHERE temp2.visited_on BETWEEN SUBDATE(Visits.visited_on, INTERVAL 6 DAY) AND Visits.visited_on) AS average_amount
+  FROM Visits
+  WHERE (SELECT COUNT(DISTINCT visited_on)
+         FROM Visits InnerV
+         WHERE visited_on BETWEEN SUBDATE(Visits.visited_on, INTERVAL 6 DAY) AND Visits.visited_on) = 7;
+  ```
+
+</details>
