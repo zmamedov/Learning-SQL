@@ -116,3 +116,61 @@
 
 ---
 
+[Task №7](https://stepik.org/lesson/1072297/step/7?unit=1082121)
+
+Напишите запрос, извлекающий из предложенной базы данных информацию о пользователях банка (имя, фамилия, актуальный баланс), актуальный баланс которых больше `5000`.
+
+Поле с актуальным балансом банковского счета пользователя должно иметь псевдоним `balance`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name, surname, SUM(amount) AS balance 
+  FROM Transactions
+  INNER JOIN Users ON Transactions.account = Users.account
+  GROUP BY Transactions.account
+  HAVING balance > 5000;
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1072297/step/8?unit=1082121)
+
+Напишите запрос, извлекающий из предложенной базы данных пары (идентификатор актера, идентификатор режиссера), которые работали вместе как минимум над `3` фильмами.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT actor_id, director_id 
+  FROM ActorsDirectors
+  GROUP BY actor_id, director_id
+  HAVING COUNT(*) >= 3;
+  ```
+
+</details>
+
+---
+
+[Task №9](https://stepik.org/lesson/1072297/step/9?unit=1082121)
+
+Напишите запрос, извлекающий из предложенной базы данных имена и фамилии сотрудников, которые имеют как минимум `5` подчиненных.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT E2.name, E2.surname
+  FROM Employees E1
+  LEFT JOIN Employees E2 ON E1.manager_id = E2.id
+  GROUP BY E1.manager_id
+  HAVING COUNT(*) >= 5;
+  ```
+
+</details>
+
+---
+
