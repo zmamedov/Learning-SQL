@@ -59,3 +59,62 @@
 
 ---
 
+[Task №4](https://stepik.org/lesson/1072299/step/4?unit=1082123)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификатор пользователя, который совершил наибольшее количество заказов.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT customer_id
+  FROM Orders
+  GROUP BY customer_id
+  ORDER BY COUNT(*) DESC
+  LIMIT 1;
+  ```
+
+</details>
+
+---
+
+[Task №5](https://stepik.org/lesson/1072299/step/5?unit=1082123)
+
+Напишите запрос, который определяет общее время в минутах, затраченное каждым сотрудником в каждый день работы в офисе.
+
+Поле с общим временем, потраченным за день на работу, должно иметь псевдоним `total_time`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT emp_id, event_day, SUM(out_time) - SUM(in_time) AS total_time
+  FROM Employees
+  GROUP BY emp_id, event_day;
+  ```
+
+</details>
+
+---
+
+[Task №6](https://stepik.org/lesson/1072299/step/6?unit=1082123)
+
+Напишите запрос, который извлекает из предложенной базы данных все поисковые запросы, а также определяет качество каждого запроса и процент низкокачественных запросов.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT query_name, ROUND(SUM(rating/position) / COUNT(*), 2) AS quality,
+         ROUND(100 * SUM(CASE
+                            WHEN rating < 3 THEN 1
+                            ELSE 0
+                         END) / COUNT(*), 2) AS poor_query_percentage
+  FROM Queries
+  GROUP BY query_name;
+  ```
+
+</details>
+
+---
+
