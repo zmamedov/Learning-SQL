@@ -174,3 +174,87 @@
 
 ---
 
+[Task №10](https://stepik.org/lesson/1072297/step/10?unit=1082121)
+
+Напишите запрос, извлекающий из предложенной базы данных псевдоним пользователя, который оценил наибольшее количество фильмов. Если таких пользователей несколько, в результирующую таблицу должен быть добавлен тот, чей псевдоним в лексикографическом сравнении меньше.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT username
+  FROM FilmRatings INNER JOIN Users ON user_id = Users.id
+  GROUP BY user_id
+  ORDER BY COUNT(*) DESC, username
+  LIMIT 1;
+  ```
+
+</details>
+
+---
+
+[Task №11](http://stepik.org/lesson/1072297/step/11?unit=1082121)
+
+Напишите запрос, извлекающий из предложенной базы данных название фильма, который имел самый высокий средний рейтинг среди оценок за сентябрь `2023` года. Если таких фильмов несколько, в результирующую таблицу должен быть добавлен тот, чье название в лексикографическом сравнении меньше.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT title
+  FROM FilmRatings INNER JOIN Films ON film_id = Films.id
+  WHERE YEAR(created_at) = 2023 AND MONTH(created_at) = 9
+  GROUP BY film_id
+  ORDER BY AVG(rating) DESC, title
+  LIMIT 1;
+  ```
+
+</details>
+
+---
+
+[Task №12](https://stepik.org/lesson/1072297/step/12?unit=1082121)
+
+Напишите запрос, извлекающий из предложенной базы данных названия стран, средняя продолжительность звонков в которых больше средней продолжительности звонков по всем странам.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT Countries.name
+  FROM (SELECT caller_id, callee_id, duration
+        FROM Calls
+        UNION ALL
+        SELECT callee_id, caller_id, duration
+        FROM Calls) t
+  LEFT JOIN Persons ON t.caller_id = Persons.id
+  LEFT JOIN Countries ON SUBSTRING_INDEX(Persons.phone_number, '-', 1) = country_code
+  GROUP BY Countries.name
+  HAVING AVG(duration) > (SELECT SUM(duration) / COUNT(*) FROM Calls);
+  ```
+
+</details>
+
+---
+
+[Task №13](https://stepik.org/lesson/1072297/step/13?unit=1082121)
+
+Напишите запрос, извлекающий из предложенной базы данных имена и фамилии пользователей, которые потратили хотя бы `150` долларов в августе `2023` года и хотя бы `150` долларов в сентябре того же года.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name, surname
+  FROM (SELECT Customers.name, Customers.surname, order_date
+        FROM Customers
+        INNER JOIN Orders ON Customers.id = customer_id
+        INNER JOIN Products ON Products.id = product_id
+        WHERE YEAR(order_date) = 2023 AND MONTH(order_date) IN (8, 9)
+        GROUP BY customer_id, order_date
+        HAVING SUM(price * quantity) >= 150) t
+  GROUP BY name, surname
+  HAVING COUNT(*) = 2;
+  ```
+
+</details>
