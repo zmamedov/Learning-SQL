@@ -180,3 +180,66 @@
 
 ---
 
+[Task №10](https://stepik.org/lesson/1072299/step/10?unit=1082123)
+
+Напишите запрос, который извлекает из предложенной базы данных названия всех товаров, а также определяет среднюю стоимость продажи каждого товара.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT product, 
+         ROUND(IFNULL(SUM(amount * price) / SUM(amount), 0), 2) AS average_selling_price
+  FROM Prices LEFT JOIN Sales ON Prices.product_id = Sales.product_id 
+                                 AND sale_date BETWEEN start_date AND end_date
+  GROUP BY product;
+  ```
+
+</details>
+
+---
+
+[Task №11](https://stepik.org/lesson/1072299/step/11?unit=1082123)
+
+Напишите запрос, который извлекает из предложенной базы данных идентификаторы всех курсов, а также определяет процент студентов, записавшихся на каждый курс.
+
+Поле с процентом записавшихся на курс студентов должно иметь псевдоним `percentage`. Значения в поле `percentage` должны быть округлены до `2` знаков после запятой.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT course_id, ROUND(COUNT(*) * 100 / (SELECT COUNT(*) FROM Users), 2) AS percentage
+  FROM Registers JOIN Users ON Users.id = user_id
+  GROUP BY course_id
+  ORDER BY percentage DESC, course_id;
+  ```
+
+</details>
+
+---
+
+[Task №12](https://stepik.org/lesson/1072299/step/12?unit=1082123)
+
+Напишите запрос, который определяет количество звонков между каждой парой пользователей с идентификаторами `id1` и `id2`, где `id1` < `id2`, и их суммарную продолжительность.
+
+Поле с идентификатором первого пользователя должно иметь псевдоним `person1`, с идентификатором второго пользователя — `person2`, с количеством звонков — `call_count`, с суммарной продолжительностью звонков — `total_duration`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT person1, person2, COUNT(*) AS call_count, SUM(duration) AS total_duration
+  FROM (SELECT from_id AS person1, to_id AS person2, duration
+        FROM Calls
+        UNION ALL
+        SELECT to_id, from_id, duration
+        FROM Calls) t
+  WHERE person1 < person2
+  GROUP BY person1, person2;
+  ```
+
+</details>
+
+---
+
