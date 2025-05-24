@@ -118,3 +118,65 @@
 
 ---
 
+[Task №7](https://stepik.org/lesson/1072299/step/7?unit=1082123)
+
+Напишите запрос, который извлекает из предложенной базы данных идентификаторы всех сотрудников, а также определяет идентификатор основного отдела каждого сотрудника. Если сотрудник работает лишь в одном отделе, идентификатором его основного отдела должен быть идентификатор того отдела, в котором он работает.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT id AS employee_id, department_id AS primary_department_id
+  FROM Employees
+  WHERE primary_flag = 'yes'
+  UNION
+  SELECT id, department_id
+  FROM Employees
+  WHERE primary_flag = 'no' AND id NOT IN (SELECT id
+                                           FROM Employees
+                                           WHERE primary_flag = 'yes');
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1072299/step/8?unit=1082123)
+
+Напишите запрос, который извлекает из предложенной базы данных все даты продаж, а также для каждой даты определяет разницу между количеством проданных апельсинов и количеством проданных яблок.
+
+Поле с разницей между количествами проданных фруктов должно иметь псевдоним `diff`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT sale_date, IF(COUNT(*) = 1, MAX(sold_num), MAX(sold_num) - MIN(sold_num)) AS diff
+  FROM Sales
+  GROUP BY sale_date;
+  ```
+
+</details>
+
+---
+
+[Task №9](https://stepik.org/lesson/1072299/step/9?unit=1082123)
+
+Напишите запрос, который извлекает из предложенной базы данных названия всех складов, а также определяет суммарный объем находящихся на каждом складе товаров.
+
+Поле с названием склада должно иметь псевдоним `warehouse_name`, поле с суммарным объемом находящихся на складе товаров — `volume`. Значения в поле `volume` должны быть округлены до `2` знаков после запятой.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT name AS warehouse_name, ROUND(SUM(width * length * height * units), 2) AS volume
+  FROM Warehouse
+  INNER JOIN Products ON product_id = Products.id
+  GROUP BY name;
+  ```
+
+</details>
+
+---
+
