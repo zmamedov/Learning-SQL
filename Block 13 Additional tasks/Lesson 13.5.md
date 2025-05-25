@@ -243,3 +243,46 @@
 
 ---
 
+[Task №13](https://stepik.org/lesson/1072299/step/13?unit=1082123)
+
+Напишите запрос, определяющий процент игроков, которые заходили в игру как минимум `2` дня подряд, и указывающий полученное значение в поле с псевдонимом `players`. Значение в поле `players` должно быть округлено до `2` знаков после запятой.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH CTE AS (
+      SELECT A1.player_id
+      FROM Activity A1 JOIN Activity A2 ON A1.player_id = A2.player_id 
+                                       AND ADDDATE(A1.event_date, INTERVAL 1 DAY) = A2.event_date
+      GROUP BY A1.player_id
+  )
+  
+  SELECT ROUND(COUNT(*) * 100 / (SELECT COUNT(DISTINCT player_id) FROM Activity), 2) AS players
+  FROM CTE;
+  ```
+
+</details>
+
+---
+
+[Task №14](https://stepik.org/lesson/1072299/step/14?unit=1082123)
+
+Напишите запрос, который определяет процент немедленных заказов среди всех первых заказов покупателей и указывает полученное значение в поле с псевдонимом `immediate_percentage`. Значение в поле `immediate_percentage` должно быть округлено до `2` знаков после запятой.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH NumOrders AS (
+      SELECT Orders.*, 
+             ROW_NUMBER() OVER(PARTITION BY customer_id ORDER BY order_date) AS num_order
+      FROM Orders
+  )
+  
+  SELECT ROUND(COUNT(*) * 100 / (SELECT COUNT(*) FROM NumOrders WHERE num_order = 1), 2) AS immediate_percentage
+  FROM NumOrders
+  WHERE num_order = 1 AND order_date = customer_pref_delivery_date;
+  ```
+
+</details>
