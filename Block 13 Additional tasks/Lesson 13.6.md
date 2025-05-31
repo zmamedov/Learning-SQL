@@ -38,3 +38,55 @@
 
 </details>
 
+[Task №3](https://stepik.org/lesson/1072302/step/3?unit=1082126)
+
+Напишите запрос, который определяет наименьшее расстояние между двумя любыми точками и указывает полученное значение в поле с псевдонимом `shortest`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT FORMAT(MIN(ABS(P1.x - P2.x)), 0) AS shortest
+  FROM Points P1 CROSS JOIN Points P2
+  WHERE P1.x != P2.x;
+  ```
+
+</details>
+
+---
+
+[Task №4](https://stepik.org/lesson/1072302/step/4?unit=1082126)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификаторы аккаунтов, в которые в определенный момент времени был выполнен вход с разных IP-адресов.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT L1.account_id
+  FROM LogInfo L1
+  INNER JOIN LogInfo L2 ON L1.account_id = L2.account_id AND L1.ip_address < L2.ip_address
+  WHERE (L2.login BETWEEN L1.login AND L1.logout) OR (L1.login BETWEEN L2.login AND L2.logout);
+  ```
+
+</details>
+
+---
+
+[Task №5](https://stepik.org/lesson/1072302/step/5?unit=1082126)
+
+Напишите запрос, который извлекает из предложенной базы данных имена и фамилии всех руководителей, а также определяет количество подчиненных у каждого руководителя и их средний возраст.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT E2.name, E2.surname, COUNT(*) AS subordinates, ROUND(AVG(E1.age)) AS average_age
+  FROM Employees E1 JOIN Employees E2 ON E1.manager_id = E2.id
+  GROUP BY E1.manager_id;
+  ```
+
+</details>
+
+---
+
