@@ -90,3 +90,68 @@
 
 ---
 
+[Task №6](https://stepik.org/lesson/1072302/step/6?unit=1082126)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификаторы сотрудников, у которых либо неизвестны имя и фамилия, либо неизвестна зарплата.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT id AS employee_id
+  FROM Employees LEFT JOIN Salaries ON Employees.id = employee_id
+  WHERE salary is NULL
+  UNION
+  SELECT employee_id
+  FROM Employees RIGHT JOIN Salaries ON Employees.id = employee_id
+  WHERE name IS NULL
+  ORDER BY employee_id;
+  ```
+
+</details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1072302/step/7?unit=1082126)
+
+Напишите запрос, извлекающий из предложенной базы данных идентификаторы постов, которые оценили друзья пользователя с идентификатором `1`, но не оценил сам пользователь с идентификатором `1`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT DISTINCT page_id AS recommended_page
+  FROM Friendship INNER JOIN Likes ON user2_id = user_id
+  WHERE user1_id = 1 AND 
+        page_id NOT IN (SELECT page_id
+                        FROM Likes
+                        WHERE user_id = 1);
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1072302/step/8?unit=1082126)
+
+Напишите запрос, извлекающий из предложенной базы данных информацию о пользователях (идентификатор, имя, фамилия), которые приобрели товары с кодами `A` и `B`, но не приобрели товар с кодом `C`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT DISTINCT Customers.*
+  FROM Customers JOIN Orders ON customer_id = Customers.id
+  WHERE product_code = 'A' AND 
+        customer_id IN (SELECT customer_id
+                            FROM Orders
+                            WHERE product_code = 'B') AND
+        customer_id NOT IN (SELECT customer_id
+                            FROM Orders
+                            WHERE product_code = 'C');
+  ```
+
+</details>
+
+---
+
