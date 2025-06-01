@@ -155,3 +155,77 @@
 
 ---
 
+[Task №9](https://stepik.org/lesson/1072302/step/9?unit=1082126)
+
+Напишите запрос, который извлекает из предложенной базы названия футбольных команд, а также определяет количество выигранных турниров каждой командой.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH FIFAWorldCup AS (
+      SELECT team_name, COUNT(*) AS fifa_won
+      FROM Championships JOIN Teams ON id = `FIFA World Cup` 
+      GROUP BY team_name
+  ),
+  UEFAEu AS (
+      SELECT team_name, COUNT(*) AS uefa_won
+      FROM Championships JOIN Teams ON id = `UEFA European Championship` 
+      GROUP BY team_name
+  ),
+  CopaAmerica AS (
+      SELECT team_name, COUNT(*) AS copa_won
+      FROM Championships JOIN Teams ON id = `Copa America` 
+      GROUP BY team_name
+  ),
+  AfricanCup AS (
+      SELECT team_name, COUNT(*) AS af_won
+      FROM Championships JOIN Teams ON id = `African Cup of Nations` 
+      GROUP BY team_name
+  )
+  
+  SELECT Teams.team_name, 
+         IFNULL(fifa_won, 0) + IFNULL(uefa_won, 0) + IFNULL(copa_won, 0) + IFNULL(af_won, 0) AS tournaments_won
+  FROM Teams
+  LEFT JOIN FIFAWorldCup ON Teams.team_name = FIFAWorldCup.team_name
+  LEFT JOIN UEFAEu ON Teams.team_name = UEFAEu.team_name
+  LEFT JOIN CopaAmerica ON Teams.team_name = CopaAmerica.team_name
+  LEFT JOIN AfricanCup ON Teams.team_name = AfricanCup.team_name;
+  ```
+
+</details>
+
+---
+
+[Task №10](https://stepik.org/lesson/1072302/step/10?unit=1082126)
+
+Напишите запрос, который извлекает из предложенной базы данных идентификаторы всех товаров, а также определяет актуальную цену каждого товара на `2023-08-09`.
+
+Поле с с актуальной ценой товара должно иметь псевдоним `current_price`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH DefaultPrice AS (
+      SELECT product_id, '10.00' AS default_price
+      FROM PriceChanges
+      GROUP BY product_id
+  ),
+  LastChangeDate AS (
+      SELECT product_id, MAX(change_date) AS last_change_date
+      FROM PriceChanges
+      WHERE change_date <= '2023-08-09'
+      GROUP BY product_id
+  )
+  
+  SELECT DefaultPrice.product_id, 
+         IFNULL(new_price, default_price) AS current_price
+  FROM DefaultPrice
+  LEFT JOIN PriceChanges ON DefaultPrice.product_id = PriceChanges.product_id AND change_date <= '2023-08-09'
+  LEFT JOIN LastChangeDate ON DefaultPrice.product_id = LastChangeDate.product_id
+  WHERE PriceChanges.change_date = last_change_date 
+        OR last_change_date IS NULL;
+  ```
+
+</details>
