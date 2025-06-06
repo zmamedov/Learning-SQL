@@ -107,3 +107,58 @@
 
 ---
 
+[Task №6](https://stepik.org/lesson/1264342/step/6?unit=1293772)
+
+Напишите запрос, извлекающий из предложенной базы данных информацию о средней температуре в каждый из дней, а также указывающий для каждого дня количество других дней, в которые средняя температура отличалась от средней температуры в этот день не больше чем на `1` градус.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT D1.day, D1.avg_temperature, COUNT(*) AS number_of_days_with_similar_temperature
+  FROM DailyTemperature D1 CROSS JOIN DailyTemperature D2 ON D1.day != D2.day
+  WHERE ABS(D1.avg_temperature - D2.avg_temperature) <= 1
+  GROUP BY day
+  ORDER BY day;
+  ```
+
+</details>
+
+---
+
+[Task №7](https://stepik.org/lesson/1264342/step/7?unit=1293772)
+
+Напишите запрос, который извлекает из предложенной базы данных информацию обо всех услугах (дата оказания, категория, оценка), а также указывает для каждой услуги среднюю оценку всех услуг, учитывая лишь текущую услугу, а также предыдущую и следующую по времени услуги в той же категории.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT provided_on, category, score,
+         AVG(score) OVER (PARTITION BY category ORDER BY provided_on ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) AS moving_avg_score
+  FROM Procedures;
+  ```
+
+</details>
+
+---
+
+[Task №8](https://stepik.org/lesson/1264342/step/8?unit=1293772)
+
+Напишите запрос, который извлекает из предложенной базы данных информацию обо всех услугах (дата оказания, категория, стоимость), а также указывает для каждой услуги стоимость предыдущей по времени услуги и разницу между стоимостями этих услуг.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT provided_on, category, price,
+         IFNULL(LAG(price) OVER time_procedure, 0) AS prev_procedure_price,
+         ABS(price - IFNULL(LAG(price) OVER time_procedure, 0)) AS prev_procedure_price_difference
+  FROM Procedures
+  WINDOW time_procedure AS (ORDER BY provided_on);
+  ```
+
+</details>
+
+---
+
