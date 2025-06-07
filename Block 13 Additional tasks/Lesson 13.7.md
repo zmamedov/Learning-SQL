@@ -162,3 +162,71 @@
 
 ---
 
+[Task №9](https://stepik.org/lesson/1264342/step/9?unit=1293772)
+
+Напишите запрос, который извлекает из предложенной базы данных информацию обо всех услугах (дата оказания, категория, стоимость, оценка), а также указывает для каждой услуги стоимость услуги с самой высокой оценкой в той же категории и разницу между стоимостями этих услуг. Если услуг с наибольшей оценкой несколько, то выбрана должна быть та услуга, что была оказана раньше всех остальных.
+
+Поле со стоимостью наиболее высоко оцененной услугой должно иметь псевдоним `best_procedure_price`, поле с разницей между стоимостями услуг — `best_procedure_price_difference`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT provided_on, category, price, score,
+         FIRST_VALUE(price) OVER score_by_category AS best_procedure_price,
+         ABS(price - FIRST_VALUE(price) OVER score_by_category) AS best_procedure_price_difference
+  FROM Procedures
+  WINDOW score_by_category AS (PARTITION BY category ORDER BY score DESC, provided_on);
+  ```
+
+</details>
+
+---
+
+[Task №10](https://stepik.org/lesson/1264342/step/10?unit=1293772)
+
+Напишите запрос, который извлекает из предложенной базы данных информацию обо всех услугах (дата оказания, категория, стоимость), а также указывает для каждой услуги максимальную стоимость услуги, оказанной в этот же день или предыдущий.
+
+Поле с максимальной стоимостью услуги, оказанной в двухдневный период, должно иметь псевдоним `yesterday_today_max_price`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  SELECT provided_on, category, price,
+         MAX(price) OVER temp AS yesterday_today_max_price
+  FROM Procedures
+  WINDOW temp AS (ORDER BY DATE(provided_on) RANGE BETWEEN INTERVAL 1 DAY PRECEDING AND CURRENT ROW);
+  ```
+
+</details>
+
+---
+
+[Task №11](https://stepik.org/lesson/1264342/step/11?unit=1293772)
+
+Напишите запрос, который разбивает процедуры на группы в зависимости от даты, в которую они были оказаны, вычисляет в рамках каждой группы количество оказанных услуг, и отображает полученный результат в виде таблицы из трех полей:
+
+* `procedure_date` — дата оказания услуг;
+* `number_of_procedures` — количество оказанных услуг в эту дату;
+* `prev_date_number_of_procedures_difference` — разница между количеством услуг, оказанных в эту дату и ближайшую предыдущую. Если относительно этой даты нет ни одной предыдущей, поле должно содержать значение `NULL`.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH PreResult AS (
+      SELECT DATE(provided_on) AS procedure_date, COUNT(*) AS number_of_procedures,
+             LAG(COUNT(*)) OVER (ORDER BY DATE(provided_on) ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) AS prev_date_number_of_procedures
+      FROM Procedures
+      GROUP BY procedure_date
+  )
+  
+  SELECT procedure_date, number_of_procedures, ABS(number_of_procedures - prev_date_number_of_procedures) AS prev_date_number_of_procedures_difference
+  FROM PreResult;
+  ```
+
+</details>
+
+---
+
