@@ -230,3 +230,29 @@
 
 ---
 
+[Task №12](https://stepik.org/lesson/1264342/step/12?unit=1293772)
+
+Напишите запрос, который в рамках каждой категории услуг определяет врача, оказавшего наибольшее количество услуг с оценкой `5`, и отображает полученный результат в виде таблицы из трех полей:
+
+* `category` — категория услуг;
+* `doctor` — имя и фамилия врача, оказавшего наибольшее количество услуг с оценкой `5` в этой категории;
+* `number_of_high_score_procedures` — количество оказанных врачом услуг с оценкой `5` в этой категории.
+
+<details>
+  <summary>Решение</summary>
+
+  ```sql
+  WITH PreResult AS (
+      SELECT doctor_id, category, COUNT(*) AS number_of_high_score_procedures,
+             ROW_NUMBER() OVER (PARTITION BY category ORDER BY COUNT(*) DESC) AS doctor_rank
+      FROM Procedures 
+      WHERE score = 5
+      GROUP BY doctor_id, category
+  )
+  
+  SELECT category, CONCAT(name, ' ', surname) AS doctor, number_of_high_score_procedures  
+  FROM PreResult JOIN Doctors ON Doctors.id = doctor_id
+  WHERE doctor_rank = 1;
+  ```
+
+</details>
